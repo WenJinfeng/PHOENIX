@@ -23,6 +23,9 @@ The required libaries in our tool are recoreded in the file "requirement.txt".
 
 #### Data collection, data convertion, and pattern mining
 
+- The dataset collection includes two scripts:
+    - AWS SAR dataset: the code file "Get_sar.py" can collect relevant AWS serverless applications.
+    - GitHub issue dataset: the code file "Get_github_issue.py" can collect relevant GitHub issues.
 - The learned patterns is saved in the directory "Patterns".
 - The code file "AWSupdate_data.ipynb" can learn the patterns about configuration resource types, configuration entries, and configuration entry values.
 - The code file "AWSRuleMining.ipynb" can learn the patterns about coarse-grained and fine-grained configuration denpendencies.
