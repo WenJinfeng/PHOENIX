@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+
+Resources:
+  HelloLayerVersion:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleArchitectures: List
+      CompatibleRuntimes: List
+      ContentUri: String | LayerContent
+      Description: String
+      LayerName: String
+      LicenseInfo: String
+      RetentionPolicy: String
+    Metadata:
+      BuildMethod: python3.8
+      BuildArchitecture: arm64
+      # BuildArchitecture: x86_64
+  Hello1LayerVersion:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleArchitectures: List
+      CompatibleRuntimes: List
+      ContentUri: String | LayerContent
+      Description: String
+      LayerName: String
+      LicenseInfo: String
+      RetentionPolicy: String
+    Metadata:
+      BuildMethod: python3.8
+      # BuildArchitecture: arm64
+      BuildArchitecture: x86_64

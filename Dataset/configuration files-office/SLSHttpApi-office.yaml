@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      AccessLogSettings: AccessLogSettings
+      Auth:
+        Authorizers:
+          OAuth2Authorizer:
+            AuthorizationScopes:
+              - scope1
+            JwtConfiguration:
+              issuer: "https://www.example.com/v1/connect/oauth2"
+              audience:
+                - MyApi
+            IdentitySource: "$request.querystring.param"
+        DefaultAuthorizer: String
+        EnableIamAuthorizer: Boolean
+      CorsConfiguration: String | HttpApiCorsConfiguration
+      DefaultRouteSettings: RouteSettings
+      DefinitionBody:
+        info:
+          version: '1.0'
+          title:
+            Ref: AWS::StackName
+        paths:
+          "/":
+            get:
+              security:
+              - OpenIdAuth:
+                - scope1
+                - scope2
+              responses: {}
+        openapi: 3.0.1
+        securitySchemes:
+          OpenIdAuth:
+            type: openIdConnect
+            x-amazon-apigateway-authorizer:
+              identitySource: "$request.querystring.param"
+              type: jwt
+              jwtConfiguration:
+                audience:
+                - MyApi
+                issuer: https://www.example.com/v1/connect/oidc
+              openIdConnectUrl: https://www.example.com/v1/connect/oidc/.well-known/openid-configuration
+      DefinitionUri: String | HttpApiDefinition
+      Description: String
+      DisableExecuteApiEndpoint: True
+      Domain:
+        BasePath: List
+        CertificateArn: String
+        DomainName: String
+        EndpointConfiguration: String
+        MutualTlsAuthentication: MutualTlsAuthentication
+        OwnershipVerificationCertificateArn: String
+        Route53:
+          HostedZoneId: String
+        SecurityPolicy: String
+      FailOnWarnings: true
+      # FailOnWarnings: false
+      Name: String
+      PropagateTags: Boolean
+      RouteSettings: RouteSettings
+      StageName: String
+      StageVariables: Json
+      Tags: Map

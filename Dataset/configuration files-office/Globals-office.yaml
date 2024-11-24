@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Api:
+    AccessLogSetting:
+    Auth:
+    BinaryMediaTypes:
+    CacheClusterEnabled:
+    CacheClusterSize:
+    CanarySetting:
+    Cors:
+    DefinitionUri:
+    Domain:
+    EndpointConfiguration:
+    GatewayResponses:
+    MethodSettings:
+    MinimumCompressionSize:
+    Name:
+    OpenApiVersion:
+    PropagateTags:
+    TracingEnabled:
+    Variables:
+  
+  Function:
+    Architectures:
+    AssumeRolePolicyDocument:
+    AutoPublishAlias:
+    CodeUri:
+    DeadLetterQueue:
+    DeploymentPreference:
+      Alarms: List
+      Enabled: Boolean
+      Hooks: Hooks
+      PassthroughCondition: Boolean
+      Role: String
+      TriggerConfigurations: List
+      Type: String
+    Description:
+    Environment:
+    EphemeralStorage:
+      Size: 5000
+    EventInvokeConfig:
+    Handler:
+    KmsKeyArn:
+    Layers:
+    MemorySize:
+    PermissionsBoundary:
+    PropagateTags:
+    ProvisionedConcurrencyConfig:
+    ReservedConcurrentExecutions:
+    Runtime:
+    Tags:
+    Timeout:
+    Tracing:
+    VpcConfig:
+      SecurityGroupIds:
+        - sg-123
+        - sg-456
+
+  HttpApi:
+    AccessLogSettings:
+    Auth:
+    PropagateTags:
+    StageVariables:
+    Tags:
+
+  SimpleTable:
+    SSESpecification:
+    
+  StateMachine:
+    PropagateTags:

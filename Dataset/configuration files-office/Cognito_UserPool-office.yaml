@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+
+Resources:
+  userpool:
+    Type: AWS::Cognito::UserPool
+    Properties: 
+      AccountRecoverySetting: 
+        AccountRecoverySetting
+      AdminCreateUserConfig: 
+        AdminCreateUserConfig
+      AliasAttributes: 
+        - String
+      AutoVerifiedAttributes: 
+        - String
+      DeletionProtection: String
+      DeviceConfiguration: 
+        DeviceConfiguration
+      EmailConfiguration: 
+        EmailConfiguration
+      EmailVerificationMessage: String
+      EmailVerificationSubject: String
+      EnabledMfas: 
+        - String
+      LambdaConfig: 
+        LambdaConfig
+      MfaConfiguration: String
+      Policies: 
+        Policies
+      Schema: 
+        - SchemaAttribute
+      SmsAuthenticationMessage: String
+      SmsConfiguration: 
+        ExternalId: String
+        SnsCallerArn: String
+        SnsRegion: String
+      SmsVerificationMessage: String
+      UserAttributeUpdateSettings: 
+        UserAttributeUpdateSettings
+      UsernameAttributes: 
+        - String
+      UsernameConfiguration: 
+        UsernameConfiguration
+      UserPoolAddOns: 
+        UserPoolAddOns
+      UserPoolName: String
+      UserPoolTags: Json
+      VerificationMessageTemplate: 
+        VerificationMessageTemplate

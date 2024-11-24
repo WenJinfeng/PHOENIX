@@ -1,0 +1,129 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Architectures: List
+      AssumeRolePolicyDocument: JSON
+      AutoPublishAlias: String
+      AutoPublishAliasAllProperties: Boolean
+      AutoPublishCodeSha256: String
+      CodeSigningConfigArn: String
+      CodeUri: String | FunctionCode
+      DeadLetterQueue: Map | DeadLetterQueue
+      DeploymentPreference:
+        Alarms: List
+        Enabled: Boolean
+        Hooks: Hooks
+        PassthroughCondition: Boolean
+        Role: String
+        TriggerConfigurations: List
+        # Type: Canary10Percent30Minutes
+        Type: Canary10Percent5Minutes
+        # Type: Canary10Percent10Minutes
+        # Type: Canary10Percent15Minutes
+        # Type: Linear10PercentEvery10Minutes
+        # Type: Linear10PercentEvery1Minute
+        # Type: Linear10PercentEvery2Minutes
+        # Type: Linear10PercentEvery3Minutes
+        # Type: AllAtOnce
+
+
+      Description: String
+      Environment: Environment
+      EphemeralStorage:
+        Size: 5000
+      EventInvokeConfig: EventInvokeConfiguration
+      Events:
+        EBRule:
+          Type: EventBridgeRule
+          Properties:
+            RuleName: 'name'
+            Input: '{"Key": "Value"}'
+            Pattern:
+              detail:
+                state:
+                  - terminated
+            RetryPolicy:
+              MaximumRetryAttempts: 5
+              MaximumEventAgeInSeconds: 900
+            DeadLetterConfig:
+              Type: SQS
+              QueueLogicalId: EBRuleDLQ
+            Target:
+              Id: MyTarget
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: GET
+            ApiId: String
+            Auth:
+              AuthorizationScopes: List
+              Authorizer: String
+            Method: GET
+            Path: /authenticated
+            PayloadFormatVersion: '1.0'
+            RouteSettings: RouteSettings
+            TimeoutInMillis: Integer
+
+        CognitoTrigger:
+          Type: Cognito
+          Properties:
+            Trigger: List
+            UserPool: String
+        ApiEvent:
+          Type: Api
+          Properties:
+            Auth:
+              ApiKeyRequired: false
+              AuthorizationScopes: List
+              Authorizer: String
+              InvokeRole: String
+              OverrideApiAuth: Boolean
+              ResourcePolicy: ResourcePolicyStatement
+            Method: String
+            Path: String
+            RequestModel:
+              Model: String
+              Required: Boolean
+              ValidateBody: Boolean
+              # ValidateParameters: Boolean
+            RequestParameters: List of [ String | RequestParameter ]
+            RestApiId: !Ref string
+            TimeoutInMillis: Integer
+      FileSystemConfigs: List
+      FunctionName: String
+      FunctionUrlConfig: FunctionUrlConfig
+      Handler: String
+      ImageConfig: ImageConfig
+      ImageUri: !Ref ECSComposeXMacroUri
+      InlineCode: String
+      KmsKeyArn: String
+      Layers: List
+      MemorySize: 2048
+      PackageType: String
+      PermissionsBoundary: String
+      Policies: String | List | Map
+      PropagateTags: Boolean
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: Integer
+      ReservedConcurrentExecutions: Integer
+      Role: String
+      RolePath: String
+      Runtime: python3.11
+      RuntimeManagementConfig: RuntimeManagementConfig
+      SnapStart: SnapStart
+      Tags: Map
+      Timeout: Integer
+      Tracing: String
+      VersionDescription: String
+      VpcConfig: VpcConfig
+  
+  SampleCustomEventBus: 
+    Type: AWS::Events::EventBus
+    Properties: 
+        Name: "MyCustomEventBus"

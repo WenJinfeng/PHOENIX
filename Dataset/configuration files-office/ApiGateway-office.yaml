@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  Apigateway:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties: 
+      ResponseParameters: 
+        Key: Value
+      ResponseTemplates: 
+        Key: Value
+      ResponseType: String
+      RestApiId: String
+      StatusCode: String
+  Usageplan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties: 
+      ApiStages: 
+        - ApiStage
+      Description: String
+      Quota: 
+        Limit: Integer
+        Offset: Integer
+        Period: String
+      Tags: 
+        - Tag
+      Throttle: 
+        BurstLimit: Integer
+        RateLimit: Double
+      UsagePlanName: String

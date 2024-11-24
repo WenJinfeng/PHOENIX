@@ -1,0 +1,5 @@
+Resources.PHAWS::EC2::SecurityGroup.Properties.VpcId
+Resources.PHAWS::Logs::LogGroup.Properties.LogGroupName
+Resources.PHAWS::S3::Bucket.Properties.BucketName
+Resources.PHAWS::Serverless::HttpApi.Properties.DefinitionBody.paths./$default.x-amazon-apigateway-any-method.isDefaultRoute
+Resources.PHAWS::Serverless::HttpApi.Properties.DefinitionBody.info.title.Fn::Sub

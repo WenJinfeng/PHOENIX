@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      AccessLogSetting: AccessLogSetting
+      AlwaysDeploy: Boolean
+      ApiKeySourceType: String
+      Auth:
+        AddApiKeyRequiredToCorsPreflight: Boolean
+        AddDefaultAuthorizerToCorsPreflight: Boolean
+        ApiKeyRequired: Boolean
+        Authorizers: CognitoAuthorizer | LambdaTokenAuthorizer | LambdaRequestAuthorizer
+        DefaultAuthorizer: String
+        InvokeRole: String
+        ResourcePolicy:
+          AwsAccountBlacklist: List
+          AwsAccountWhitelist:
+            - "111122223333"
+          CustomStatements: [{
+                         "Effect": "Allow",
+                         "Principal": "*",
+                         "Action": "execute-api:Invoke",
+                         "Resource": "execute-api:/Prod/GET/pets",
+                         "Condition": {
+                           "IpAddress": {
+                             "aws:SourceIp": "1.2.3.4"
+                           }
+                         }
+                       }]
+          IntrinsicVpcBlacklist:
+            - "{{resolve:ssm:SomeVPCReference:1}}" 
+            - !Ref MyVPC
+          IntrinsicVpcWhitelist: List
+          IntrinsicVpceBlacklist: List
+          IntrinsicVpceWhitelist:
+            - "{{resolve:ssm:SomeVPCEReference:1}}" 
+            - !Ref MyVPCE
+          IpRangeBlacklist:
+            - "10.20.30.40"
+            - "1.2.3.4"
+          IpRangeWhitelist: List
+          SourceVpcBlacklist:
+            - "vpce-1a2b3c4d"
+          SourceVpcWhitelist: List
+        UsagePlan: ApiUsagePlan
+      BinaryMediaTypes: List
+      CacheClusterEnabled: Boolean
+      CacheClusterSize: String
+      CanarySetting: CanarySetting
+      Cors: String | CorsConfiguration
+      DefinitionBody: JSON
+      DefinitionUri: String | ApiDefinition
+      Description: String
+      DisableExecuteApiEndpoint: Boolean
+      Domain: 
+        BasePath: List
+        NormalizeBasePath: Boolean
+        CertificateArn: String
+        DomainName: String
+        EndpointConfiguration: String
+        MutualTlsAuthentication: MutualTlsAuthentication
+        OwnershipVerificationCertificateArn: String
+        Route53:
+          DistributionDomainName: String
+          EvaluateTargetHealth: Boolean
+          HostedZoneId: String
+          HostedZoneName: String
+          IpV6: Boolean
+          Region: String
+          SetIdentifier: String
+        SecurityPolicy: String
+      EndpointConfiguration:
+        Type: PRIVATE
+        VPCEndpointIds: List
+      FailOnWarnings: Boolean
+      GatewayResponses: Map
+      MergeDefinitions: Boolean
+      MethodSettings: MethodSettings
+      MinimumCompressionSize: Integer
+      Mode: String
+      Models: Map
+      Name: String
+      OpenApiVersion: String
+      PropagateTags: Boolean
+      StageName: String
+      Tags: Map
+      TracingEnabled: Boolean
+      Variables: Map
