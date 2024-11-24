@@ -1,0 +1,27 @@
+Resources:
+  Topic:
+    Type: AWS::SNS::Topic
+
+  MyFunctionTopicEventQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 60
+
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://bucket/key
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Events:
+        TopicEvent:
+          Type: SNS
+          Properties:
+            Topic: !Ref Topic
+            SqsSubscription:
+              QueueArn: 
+                Fn::GetAtt: 
+                  - MyFunctionTopicEventQueue
+                  - "Arn"
+              QueueUrl: !Ref MyFunctionTopicEventQueue

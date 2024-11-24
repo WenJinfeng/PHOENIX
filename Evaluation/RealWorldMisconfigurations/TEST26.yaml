@@ -1,0 +1,5 @@
+Resources:
+  LambdaName:
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: 'functionname'

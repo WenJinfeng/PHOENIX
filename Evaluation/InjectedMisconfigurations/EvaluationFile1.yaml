@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  VPCE:
+    Type: string
+
+Resources:
+  ApiGateway:
+    Type: AWS::Serverless::Ap
+    Properties:
+      StageName: somestagename
+      EndpointConfiguration:
+        Type: PRIVATE
+        VPCEndpointIds:
+          - !Ref VPCE

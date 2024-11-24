@@ -1,0 +1,18 @@
+Resources:
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: MyFunction
+      CodeUri: ./js/MyFunction/
+      Handler: index.handler
+      Runtime: nodejs10.x
+      Events:
+        GetRequest:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /mypath/{storeId}
+            Method: GET
+            PayloadFormatVersion: 2.0
+            Auth:
+              Authorizer: NONE

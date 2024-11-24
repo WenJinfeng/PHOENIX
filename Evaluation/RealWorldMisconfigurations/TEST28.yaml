@@ -1,0 +1,33 @@
+Resources:
+  WriteLeaderboardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: app/
+      Handler: write_leaderboard.lambda_handler
+      Runtime: python3.9
+      ReservedConcurrentExecutions: 1
+      MemorySize: 256
+      Architectures:
+        - x86_64
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref BucketName
+      Events:
+        Write:
+          Type: Api
+          Properties:
+            RestApiId: !Ref apis
+            Path: /leaderboard
+            Method: put
+            Auth:
+              ApiKeyRequired: true
+            RequestParameters:
+              method.request.querystring.score:
+                type: integer
+                minimum: 0
+                required: true
+              method.request.querystring.name:
+                type: string
+                minLength: 3
+                maxLength: 25
+                required: true

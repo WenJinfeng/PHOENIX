@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+
+Resources:
+  LogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: /aws/lambda/cfs-termination
+      RetentionInDays: 7
+  StackTermination:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: TerminateOverdueStacks
+      MemorySize: 128
+      Description: Terminate CloudFormation Stacks that have the DeleteAfter tag
+      Handler: index.handler
+      Runtime: nodejs6.10
+      Timeout: 10
+      Policies:
+        - PolicyName: LambdaListAndTerminateStacks
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'cloudformation:DescribeStacks'
+                  - 'cloudformation:DeleteStack'
+                  - 'cloudformation:ListExports'
+                  - 'iam:PassRole'
+                Resource:
+                  - '*'
+      Events:
+        CfsTermination:
+          Type: Schedule
+          Properties:
+            Schedule: rate(30 minutes)

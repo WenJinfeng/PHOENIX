@@ -1,0 +1,19 @@
+
+Resources:
+  ProfilePostFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs8.10
+      Timeout: 2
+      StageName: Prod
+      FunctionName: !Join ["", [ !Ref EnvrType ,"-", "SI-post-profile-image" ] ]
+      Role: 'arn:aws:iam::45645654645645:role/aiportal-lambda-execution-role'
+      CodeUri: lambdas/SI-post-profile-image
+      AutoPublishAlias: dev
+      DeploymentPreference:
+        Type: AllAtOnce
+        Alarms:
+          # A list of alarms that you want to monitor
+          - !Ref AliasErrorMetricGreaterThanZeroAlarm
+          - !Ref LatestVersionErrorMetricGreaterThanZeroAlarm

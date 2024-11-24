@@ -1,0 +1,272 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Calls Denic APIs and returns results back to tier 2
+
+Globals:
+  Function:
+    Runtime: python3.8
+    MemorySize: 128
+    Timeout: 20
+    Handler: lambda_function.lambda_handler
+
+Parameters:
+  EnvType:
+    Default: dev
+    Type: String
+    AllowedValues:
+      - prod
+      - staging
+      - dev
+    
+Conditions:
+  IsProduction: !Equals 
+    - !Ref EnvType
+    - prod
+
+  IsStaging: !Equals
+    - !Ref EnvType
+    - staging
+
+  IsDev: !Equals
+     - !Ref EnvType
+     - dev
+
+  IsStagingOrProduction: !Or
+    - !Condition IsProduction
+    - !Condition IsStaging
+
+Mappings:
+  AccountRegion:
+    us-east-2:
+      "531454079470": "us-east-2.531454079470"
+      "237413793994": "us-east-2.237413793994"
+    us-west-2:
+      "531454079470": "us-west-2.531454079470"
+      "237413793994": "us-west-2.237413793994"
+    us-east-1:
+      "531454079470": "us-east-1.531454079470"
+      "237413793994": "us-east-1.237413793994"
+
+  LayerVersions:
+    "us-east-2.531454079470":
+      "Gnup": arn:aws:lambda:us-east-2:531454079470:layer:GNUP:1
+      "Gnup37": arn:aws:lambda:us-east-2:531454079470:layer:GNUP-3-7:1
+      "GenerateAuthCode": arn:aws:lambda:us-east-2:531454079470:layer:generate-auth-code:3
+      "denicSdk": arn:aws:lambda:us-east-2:531454079470:layer:denic-sdk:1
+      "Paramiko": arn:aws:lambda:us-east-2:531454079470:layer:paramiko:8
+      "PhoneAndAddressValidation": arn:aws:lambda:us-east-2:531454079470:layer:phone-and-address-validation:2
+      "Qldb": arn:aws:lambda:us-east-2:531454079470:layer:qldb:1
+      "Rdap": arn:aws:lambda:us-east-2:531454079470:layer:rdap:4
+      "Requests": arn:aws:lambda:us-east-2:531454079470:layer:requests:1
+      "SavGeneralIncludes": arn:aws:lambda:us-east-2:531454079470:layer:sav-general-includes:31
+      "StatusCode": arn:aws:lambda:us-east-2:531454079470:layer:status-code:1
+      "TldExtraction": arn:aws:lambda:us-east-2:531454079470:layer:tld-extraction:6
+      "GetPendingDeleteDomainsLayer": arn:aws:lambda:us-east-2:531454079470:layer:get-pending-delete-domains-layer:3
+      "IDNCheck": arn:aws:lambda:us-east-2:531454079470:layer:idn-check:1
+    "us-east-2.237413793994":
+      "Gnup": arn:aws:lambda:us-east-2:237413793994:layer:GNUP:4
+      "Gnup37": arn:aws:lambda:us-east-2:237413793994:layer:GNUP-3-7:4
+      "GenerateAuthCode": arn:aws:lambda:us-east-2:237413793994:layer:generate-auth-code:6
+      "denicSdk": arn:aws:lambda:us-east-2:237413793994:layer:denic-sdk:4
+      "Paramiko": arn:aws:lambda:us-east-2:237413793994:layer:paramiko:2
+      "PhoneAndAddressValidation": arn:aws:lambda:us-east-2:237413793994:layer:phone-and-address-validation:5
+      "Qldb": arn:aws:lambda:us-east-2:237413793994:layer:qldb:4
+      "Rdap": arn:aws:lambda:us-east-2:237413793994:layer:rdap:7
+      "Requests": arn:aws:lambda:us-east-2:237413793994:layer:requests:4
+      "SavGeneralIncludes": arn:aws:lambda:us-east-2:237413793994:layer:sav-general-includes:64
+      "StatusCode": arn:aws:lambda:us-east-2:237413793994:layer:status-code:4
+      "TldExtraction": arn:aws:lambda:us-east-2:237413793994:layer:tld-extraction:16
+      "GetPendingDeleteDomainsLayer": arn:aws:lambda:us-east-2:237413793994:layer:get-pending-delete-domains-layer:8
+      "IDNCheck": arn:aws:lambda:us-east-2:237413793994:layer:idn-check:1
+    "us-east-1.531454079470":
+      "Gnup": arn:aws:lambda:us-east-1:531454079470:layer:GNUP:1
+      "Gnup37": arn:aws:lambda:us-east-1:531454079470:layer:GNUP-3-7:1
+      "GenerateAuthCode": arn:aws:lambda:us-east-1:531454079470:layer:generate-auth-code:2
+      "denicSdk": arn:aws:lambda:us-east-1:531454079470:layer:denic-sdk:1
+      "Paramiko": arn:aws:lambda:us-east-1:531454079470:layer:paramiko:1
+      "PhoneAndAddressValidation": arn:aws:lambda:us-east-1:531454079470:layer:phone-and-address-validation:2
+      "Qldb": arn:aws:lambda:us-east-1:531454079470:layer:qldb:1
+      "Rdap": arn:aws:lambda:us-east-1:531454079470:layer:rdap:2
+      "Requests": arn:aws:lambda:us-east-1:531454079470:layer:requests:1
+      "SavGeneralIncludes": arn:aws:lambda:us-east-1:531454079470:layer:sav-general-includes:20
+      "StatusCode": arn:aws:lambda:us-east-1:531454079470:layer:status-code:1
+      "TldExtraction": arn:aws:lambda:us-east-1:531454079470:layer:tld-extraction:4
+      "GetPendingDeleteDomainsLayer": arn:aws:lambda:us-east-1:531454079470:layer:get-pending-delete-domains-layer:4
+      "IDNCheck": arn:aws:lambda:us-east-1:531454079470:layer:idn-check:1
+    "us-east-1.237413793994":
+      "Gnup": arn:aws:lambda:us-east-1:237413793994:layer:GNUP:1
+      "Gnup37": arn:aws:lambda:us-east-1:237413793994:layer:GNUP-3-7:1
+      "GenerateAuthCode": arn:aws:lambda:us-east-1:237413793994:layer:generate-auth-code:1
+      "denicSdk": arn:aws:lambda:us-east-1:237413793994:layer:denic-sdk:1
+      "Paramiko": arn:aws:lambda:us-east-1:237413793994:layer:paramiko:1
+      "PhoneAndAddressValidation": arn:aws:lambda:us-east-1:237413793994:layer:phone-and-address-validation:1
+      "Qldb": arn:aws:lambda:us-east-1:237413793994:layer:qldb:1
+      "Rdap": arn:aws:lambda:us-east-1:237413793994:layer:rdap:1
+      "Requests": arn:aws:lambda:us-east-1:237413793994:layer:requests:1
+      "SavGeneralIncludes": arn:aws:lambda:us-east-1:237413793994:layer:sav-general-includes:4
+      "StatusCode": arn:aws:lambda:us-east-1:237413793994:layer:status-code:1
+      "TldExtraction": arn:aws:lambda:us-east-1:237413793994:layer:tld-extraction:1
+      "GetPendingDeleteDomainsLayer": arn:aws:lambda:us-east-1:237413793994:layer:get-pending-delete-domains-layer:2
+      "IDNCheck": arn:aws:lambda:us-east-1:237413793994:layer:idn-check:1
+    "us-west-2.531454079470":
+      "Gnup": arn:aws:lambda:us-west-2:531454079470:layer:GNUP:2
+      "Gnup37": arn:aws:lambda:us-west-2:531454079470:layer:GNUP-3-7:2
+      "GenerateAuthCode": arn:aws:lambda:us-west-2:531454079470:layer:generate-auth-code:2
+      "denicSdk": arn:aws:lambda:us-west-2:531454079470:layer:denic-sdk:2
+      "PhoneAndAddressValidation": arn:aws:lambda:us-west-2:531454079470:layer:phone-and-address-validation:2
+      "Qldb": arn:aws:lambda:us-west-2:531454079470:layer:qldb:2
+      "Rdap": arn:aws:lambda:us-west-2:531454079470:layer:rdap:2
+      "Requests": arn:aws:lambda:us-west-2:531454079470:layer:requests:2
+      "SavGeneralIncludes": arn:aws:lambda:us-west-2:531454079470:layer:sav-general-includes:9
+      "StatusCode": arn:aws:lambda:us-west-2:531454079470:layer:status-code:2
+      "TldExtraction": arn:aws:lambda:us-west-2:531454079470:layer:tld-extraction:2
+      "GetPendingDeleteDomainsLayer": arn:aws:lambda:us-west-2:531454079470:layer:get-pending-delete-domains-layer:1
+      "IDNCheck": arn:aws:lambda:us-west-2:531454079470:layer:idn-check:1
+    "us-west-2.237413793994":
+      "Gnup": arn:aws:lambda:us-west-2:237413793994:layer:GNUP:2
+      "Gnup37": arn:aws:lambda:us-west-2:237413793994:layer:GNUP-3-7:2
+      "GenerateAuthCode": arn:aws:lambda:us-west-2:237413793994:layer:generate-auth-code:2
+      "denicSdk": arn:aws:lambda:us-west-2:237413793994:layer:denic-sdk:2
+      "PhoneAndAddressValidation": arn:aws:lambda:us-west-2:237413793994:layer:phone-and-address-validation:2
+      "Qldb": arn:aws:lambda:us-west-2:237413793994:layer:qldb:2
+      "Rdap": arn:aws:lambda:us-west-2:237413793994:layer:rdap:2
+      "Requests": arn:aws:lambda:us-west-2:237413793994:layer:requests:2
+      "SavGeneralIncludes": arn:aws:lambda:us-west-2:237413793994:layer:sav-general-includes:9
+      "StatusCode": arn:aws:lambda:us-west-2:237413793994:layer:status-code:2
+      "TldExtraction": arn:aws:lambda:us-west-2:237413793994:layer:tld-extraction:2
+      "GetPendingDeleteDomainsLayer": arn:aws:lambda:us-west-2:237413793994:layer:get-pending-delete-domains-layer:1
+      "IDNCheck": arn:aws:lambda:us-west-2:237413793994:layer:idn-check:1
+
+Resources:
+
+
+  CredentialDenicFifoQueueContainerized:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: !If [IsDev, tier_3_credential_id_530_containerized.fifo, tier_3_credential_id_437_containerized.fifo]
+    ContentBasedDeduplication: false
+    FifoQueue: true
+    MessageRetentionPeriod: 2400
+
+  StartMicroservice:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: start-tier-3-denic
+      InlineCode: |
+        import json
+        import boto3
+        import os
+
+        def lambda_handler(event, context):
+            operation_id = event['Records'][0]['body']
+            sfn = boto3.client('stepfunctions')
+            sfn.start_execution(
+                    stateMachineArn = os.environ['STEP_FUNCTION_ARN'],
+                    input=json.dumps(operation_id)
+                )
+
+            return {
+                'body': operation_id
+            }
+      Handler: index.lambda_handler
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/main-lambda
+      Architectures: [arm64]
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref EnvType
+          STEP_FUNCTION_ARN: !GetAtt MainStateMachine.Arn
+      Events:
+        Credential530Event:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt CredentialDenicFifoQueueContainerized.Arn
+            BatchSize: 1
+
+  StateMachineFailureAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProduction
+    Properties:
+      AlarmActions: 
+        - !ImportValue sns-topic-step-function-failures
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !GetAtt MainStateMachine.Arn
+      EvaluationPeriods: 1
+      Statistic: Sum
+      Threshold: 0
+      MetricName: ExecutionsFailed
+      Namespace: AWS/States
+      Period: 60
+      TreatMissingData: notBreaching
+
+  StateMachineTimedOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProduction
+    Properties:
+      AlarmActions: 
+        - !ImportValue sns-topic-step-function-failures
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !GetAtt MainStateMachine.Arn
+      EvaluationPeriods: 1
+      Statistic: Sum
+      Threshold: 0
+      MetricName: ExecutionsTimedOut
+      Namespace: AWS/States
+      Period: 60
+      TreatMissingData: notBreaching
+
+  StateMachineThrottledAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProduction
+    Properties:
+      AlarmActions: 
+        - !ImportValue sns-topic-step-function-failures
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !GetAtt MainStateMachine.Arn
+      EvaluationPeriods: 1
+      Statistic: Sum
+      Threshold: 0
+      MetricName: ExecutionsThrottled
+      Namespace: AWS/States
+      Period: 60
+      TreatMissingData: notBreaching
+
+  MainStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: tier-3-denic
+      DefinitionUri: ./step-functions/tier-3-denic.asl.json
+      DefinitionSubstitutions:
+        CallDenicApi-Arn: !GetAtt CallDenicApi.Arn
+        GetRequestDataFromDynamo-Arn: !ImportValue global-get-request-data-from-dynamo
+        GetConnectionDetailsFromRds-Arn: !ImportValue global-get-connection-details-from-rds
+        SetStatusToInProgressInDynamo-Arn: !ImportValue global-set-status-to-in-progress-in-dynamo
+        SetStatusToCompletedInDynamo-Arn: !ImportValue global-set-status-to-completed-in-dynamo
+        SetStatusToFailedInDynamo-Arn: !ImportValue global-set-status-to-failed-in-dynamo
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/main-step-function
+
+  CallDenicApi:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: call-denic-api
+      CodeUri: ./lambdas/call-denic-api
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/main-lambda
+      Architectures: [arm64]
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref EnvType
+      Timeout: 300
+      Layers: 
+        - !FindInMap [LayerVersions, !FindInMap [AccountRegion, !Ref "AWS::Region", !Ref "AWS::AccountId"], SavGeneralIncludes]
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue vpc-sg
+        SubnetIds:
+          - !ImportValue private-subnet-1
+          - !ImportValue private-subnet-2
+        

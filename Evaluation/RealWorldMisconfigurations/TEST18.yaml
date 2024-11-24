@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:  # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+  Function:
+    Timeout: 15
+    Tracing: Active
+  Api:
+    TracingEnabled: true
+
+BlastDbUpdaterFunction:
+    _comment: "runs as needed to keep our data base updated to the state of batch jobs"
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+      - x86_64
+      CodeUri: /
+      ImageConfig:
+        Command:
+        - blast-db-updater.lambda_handler
+      ImageUri:   BlastDbUpdaterFunction:latest
+    Events:
+      Trigger:
+        Type: EventBridgeRule 
+        Properties:
+          RuleName: OnBatchJobStateChange
+          Pattern:
+            source:
+              - aws.batch
+            detail-type:
+              - Batch Job State Change                
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: python3.11-v1

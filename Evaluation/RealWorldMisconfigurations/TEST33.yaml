@@ -1,0 +1,24 @@
+Resources:
+  MyAPIApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Domain:
+        CertificateArn: arn:aws:acm:us-east-1:****
+        DomainName: api.example.com
+        DomainEndpointConfiguration: EDGE
+        Route53:
+          HostedZoneId: ABCD
+      CacheClusterEnabled: false
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: 's3://mybucket/openapi.yml'
+      EndpointConfiguration: REGIONAL
+      MethodSettings:
+        - ResourcePath: '/*'
+          HttpMethod: '*'
+          MetricsEnabled: false
+      MinimumCompressionSize: 10
+      Name: 'DEV'
+      StageName: 'DEV'

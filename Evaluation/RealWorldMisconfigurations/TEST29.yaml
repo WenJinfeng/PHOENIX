@@ -1,0 +1,13 @@
+Mappings: 
+  StageToName: 
+    ApiType: 
+      test: REGIONAL
+      prod: EDGE
+Resources:
+  ApiName:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Sub '${Stage}'
+      EndpointConfiguration:   
+        Types:
+          - !FindInMap [StageToName, ApiType, !Ref Stage]

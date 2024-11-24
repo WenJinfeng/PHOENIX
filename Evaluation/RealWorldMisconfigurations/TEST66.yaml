@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: 'AudioMatch backend services'
+
+Parameters:
+  Stage:
+    Type: String
+    Description: 'Template stage, such as "dev" or "prod", for which resources are provisioned and deployed.'
+    AllowedValues: ['dev','prod']
+    Default: 'dev'
+
+Resources:
+  
+  # PrivateSubnetA:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     CidrBlock: !Select [0, !FindInMap [StageToCIDR, !Ref Stage, PrivateSubnetIpBlocks]]
+  #     VpcId: !Ref VPC
+  #     MapPublicIpOnLaunch: False
+  #     AvailabilityZone: !Sub '${AWS::Region}a'
+  #     Tags:
+  #       - Key: Name
+  #         Value: 'AM Private A'
+
+  # PrivateSubnetB:
+  #   Type: AWS::EC2::Subnet
+  #   Properties:
+  #     CidrBlock: !Select [1, !FindInMap [StageToCIDR, !Ref Stage, PrivateSubnetIpBlocks]]
+  #     VpcId: !Ref VPC
+  #     MapPublicIpOnLaunch: False
+  #     AvailabilityZone: !Sub '${AWS::Region}b'
+  #     Tags:
+  #       - Key: Name
+  #         Value: 'AM Private B'
+  
+  # NoIngressSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupName: 'No ingress'
+  #     GroupDescription: !Sub "No input connections, for Batch EC2 instances and Lambda functions"
+  #     VpcId: !Ref VPC
+  #     Tags:
+  #       - Key: Name
+  #         Value: No ingress
+
+  # API ----------------------------------------------------------------------------------------------------------------
+  # APILogRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     Description: 'IAM role for API Gateway Logging'
+  #     AssumeRolePolicyDocument:
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service: [apigateway.amazonaws.com]
+  #           Action: sts:AssumeRole
+  #     ManagedPolicyArns:
+  #       - 'arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs'
+
+  # APIGatewayAccount:
+  #   Type: AWS::ApiGateway::Account
+  #   Properties:
+  #     CloudWatchRoleArn: !GetAtt APILogRole.Arn
+
+  BackendHttpAPI:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref Stage
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: openapi.yaml
+
+
+
+  LibrariesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Metadata:
+      BuildMethod: python3.7
+    Properties:
+      Description: 'Dependencies for Lambda functions'
+      RetentionPolicy: Delete
+      ContentUri: libs/
+      CompatibleRuntimes:
+        - python3.7
+
+  BackendLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: 'Backend for API'
+      CodeUri: ./backend
+      Handler: apihandler.handler
+      Role: !GetAtt BackendLambdaRole.Arn
+      Runtime: python3.7
+      Timeout: 180
+      MemorySize: 512
+      DeadLetterQueue:
+        Type: SQS
+        TargetArn: !GetAtt BackendDeadLetterQueue.Arn
+      # VpcConfig:
+      #   SecurityGroupIds:
+      #     - !Ref NoIngressSecurityGroup
+      #   SubnetIds:
+      #     - !Ref PrivateSubnetA
+      #     - !Ref PrivateSubnetB
+      Layers:
+        - !Ref LibrariesLayer
+      Events:
+        CountReferences:
+          Type: Api
+          Properties:
+            Method: get
+            Path: /count/references/{amid}/{type}
+            RestApiId: !Ref BackendHttpAPI
+
+  BackendLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: 'IAM role for BackendLambda'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [lambda.amazonaws.com]
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DeadLetterQueueSendMessage
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: !GetAtt BackendDeadLetterQueue.Arn
+        - PolicyName: BatchJobSubmit
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: batch:SubmitJob
+                Resource:
+                  - !Sub 'arn:aws:batch:${AWS::Region}:${AWS::AccountId}:job-definition/*'
+                  - !Sub 'arn:aws:batch:${AWS::Region}:${AWS::AccountId}:job-queue/*'
+        - PolicyName: AccessToS3
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource:
+                  - arn:aws:s3:::*
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole'
+
+  BackendDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Description: 'Dead Letter Queue for BackendLambda failed invocations'

@@ -1,0 +1,13 @@
+Resources:
+  xyzfunction:         
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "xyz"                                                                
+      Description: ""
+      Handler: xyz::xyz::FunctionHandler                   
+      CodeUri: ./xyz-app.zip
+      Runtime: dotnetcore3.1
+      Environment: 
+        Variables:
+          ASPNETCORE_ENVIRONMENT: !Ref Stage
+      EphemeralStorage: 5000

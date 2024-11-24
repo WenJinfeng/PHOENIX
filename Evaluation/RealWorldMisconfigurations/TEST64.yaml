@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  pt-issue-1149
+
+  Sample SAM Template for pt-issue-1149
+
+Globals:
+  Function:
+    Timeout: 2
+    MemorySize: 256
+    Runtime: python3.9
+    Tracing: Active
+    Environment:
+        Variables:
+            LOG_LEVEL: INFO
+            POWERTOOLS_SERVICE_NAME: hello
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Layers:
+        - arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPython:18
+      Architectures:
+        - x86_64
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !GetAtt SampleQueue.QueueName
+      Events:
+          Batch:
+              Type: SQS
+              Properties:
+                  Queue: !GetAtt SampleQueue.Arn
+                  FunctionResponseTypes:
+                      - ReportBatchItemFailures
+
+  SampleDLQ:
+      Type: AWS::SQS::Queue
+
+  SampleQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+          VisibilityTimeout: 30 # Fn timeout * 6
+          RedrivePolicy:
+              maxReceiveCount: 1
+              deadLetterTargetArn: !GetAtt SampleDLQ.Arn
+
+Outputs:
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn

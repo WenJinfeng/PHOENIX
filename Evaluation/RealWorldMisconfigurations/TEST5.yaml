@@ -1,0 +1,33 @@
+
+Resources:
+  Signer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: signer/
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Role: !GetAtt ConsensusSignerRole.Arn
+      Environment:
+        Variables:
+          BAKER_AUTHORIZED_KEY: !Ref BakerAuthorizedKey
+          DYNAMODB_TABLE_NAME: !Ref DynamoDBTable
+          KMS_KEY_ID: !GetAtt TezosConsensusKey.Arn
+          CONSENSUS_PUBLIC_KEY: !GetAtt SignerLambdaEnv.publicKey
+          CONSENSUS_PUBLIC_KEY_HASH: !GetAtt SignerLambdaEnv.publicKeyHash
+          SECRET_URL_PATH: !GetAtt SignerLambdaEnv.randomString
+
+  SignerUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: NONE
+      TargetFunctionArn: !GetAtt Signer.Arn
+
+  SignerUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunctionUrl
+      FunctionName: !Ref Signer
+      Principal: "*"
+      FunctionUrlAuthType: NONE

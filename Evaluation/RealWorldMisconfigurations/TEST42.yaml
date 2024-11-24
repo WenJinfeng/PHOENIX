@@ -1,0 +1,34 @@
+Resources:
+  GetLeaderboardFunction:
+    Type: AWS::Serverless::Function
+    Properties: 
+      FunctionName: "GetLeaderboard"
+      CodeUri: app/
+      Handler: read_leaderboard.lambda_handler
+      Runtime: python3.9
+      MemorySize: 512
+      Architectures:
+        - x86_64
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref BucketName
+      Events:
+        Read:
+          Type: Api
+          Properties:
+            RestApiId: !Ref APIGateway
+            Path: /leaderboard
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+            RequestParameters:
+              - method.request.querystring.score:
+                  Required: true
+                  Caching: false
+            RequestModel:
+              Model: Score
+              Required: true
+              ValidateBody: false
+              ValidateParameters: false
+              ValidateQueryString: true
+              ValidateHeaders: true

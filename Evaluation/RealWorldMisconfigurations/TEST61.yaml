@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  MyLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: MyLambda
+      Timeout: 60
+      Events:
+        Queue:
+          Type: SQS
+          Properties:
+            BatchSize: 1
+            Queue: !GetAtt MyQueue.Arn
+  MyQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: MyQueue
+      VisibilityTimeout: 30

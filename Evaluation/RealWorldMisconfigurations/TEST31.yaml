@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+- AWS::Serverless-2016-10-31
+
+Globals:
+  Functions:
+    Policies:
+      - AWSLambdaBasicExecutionRole
+      - SSMParameterReadPolicy:
+          ParameterName: MySecretAPIKey
+
+Resources:
+  listStores:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/stores.list
+      Policies:
+        # This will be merged with the global policies
+        - DynamoDBReadPolicy:
+            TableName: MyTable
+
+  createStore:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/handlers/stores.create
+      Policies:
+        # This will be merged with the global policies
+        - DynamoDBWritePolicy:
+            TableName: MyTable

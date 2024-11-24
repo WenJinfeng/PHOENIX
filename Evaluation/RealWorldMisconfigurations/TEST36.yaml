@@ -1,0 +1,31 @@
+
+Resources:
+  RestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      CacheClusterEnabled: true
+      CacheClusterSize: '0.5'
+      MethodSettings:
+        - ResourcePath: /{id}
+          HttpMethod: "GET"
+          CachingEnabled: true
+          CacheTtlInSeconds: 60
+
+  GetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.handler
+      Runtime: nodejs12.x
+      Events:
+        Http:
+          Type: Api
+          Properties:
+            Path: /{id}
+            Method: get
+            RequestParameters:
+              method.request.path.id:
+                Required: true
+                Caching: true
+            RestApiId: !Ref RestApi

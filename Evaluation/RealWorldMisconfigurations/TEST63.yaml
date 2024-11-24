@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SampleLambda
+
+  Sample SAM Template for SampleLambda
+
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+
+Resources:
+  AwsApiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: Basic AWS API Gateway
+      StageName: dev
+
+  SampleLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: source_code/
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AwsApiGateway
+            Path: /{proxy+}
+            Method: GET

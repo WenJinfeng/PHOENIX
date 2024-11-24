@@ -1,0 +1,13 @@
+Resources:
+  StockTradingStateMachine:
+    Type: AWS::Serverless::StateMachine
+    # snip
+    Properties:
+      # snip
+      Events:
+       MyEvent:
+         Type: EventBridgeRule
+         Properties:
+           Name: foobar
+           Pattern:
+             detail-type: ["Object Created"]

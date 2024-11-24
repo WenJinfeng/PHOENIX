@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+
+Resources:
+  # Account:
+    # Type: 'AWS::ApiGateway::Model'
+    # Properties:
+    #   RestApiId: !Ref ServerlessRestApi
+    #   ContentType: application/json
+    #   Name: Account
+    #   Schema:
+    #     $schema: 'http://json-schema.org/draft-04/schema#'
+    #     title: Account
+    #     type: array
+    #     items:
+    #       type: object
+    #       properties:
+    #         name:
+    #           type: string
+    #         status:
+    #           type: string
+  CreateAccountFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: controllers/accounts.create
+      Events:
+        CreateAccount:
+          Type: Api
+          Properties:
+            Path: /accounts
+            Method: post
+            # RestApiId: !Ref XX
+            RequestModel:
+              Model: Account
+              Required: true
+              ValidateBody: true
+      Role: !GetAtt LambdaRole.Arn
+  

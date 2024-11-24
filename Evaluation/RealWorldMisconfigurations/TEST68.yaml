@@ -1,0 +1,134 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for the Monologue Repo at Example
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+##########################################################################
+#  API Gateway HTTP API                                                  #
+##########################################################################
+  ExampleHttpApi:
+    Type: 'AWS::ApiGatewayV2::Api'
+    Properties:
+      Name: Monologue
+      Description: Primary API Gateway to Example
+      ProtocolType: HTTP
+##########################################################################
+#   Lambda Functions                                                     #
+##########################################################################
+  WebUIFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./web-ui/build
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Architectures:
+        - arm64
+      Events:
+        WebUITrigger:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            ApiId: !Ref ExampleHttpApi
+        WebUIIndexTrigger:
+          Type: HttpApi 
+          Properties:
+            Path: /
+            Method: ANY
+            ApiId: !Ref ExampleHttpApi
+  ExampleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - arm64
+      Events:
+        Example:
+          Type: HttpApi
+          Properties:
+            Path: /api/hello
+            Method: get
+            ApiId: !Ref ExampleHttpApi
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./api/hey/hello_world
+      DockerTag: python3.11-v1
+  HoWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - arm64
+      Events:
+        Example:
+          Type: HttpApi
+          Properties:
+            Path: /api/ho
+            Method: ANY
+            ApiId: !Ref ExampleHttpApi
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./api/ho/hello_world
+      DockerTag: python3.11-v1
+##########################################################################
+#  CloudFront::CachePolicy                                               #
+##########################################################################
+#   2sCachePolicy:
+#     Type: AWS::CloudFront::CachePolicy
+#     Properties:
+#       CachePolicyConfig:
+#         Comment: Cache for 2s
+#         DefaultTTL: 1
+#         MaxTTL: 2
+#         MinTTL: 1
+#         Name: 2sCachePolicy
+#         ParametersInCacheKeyAndForwardedToOrigin:
+#           CookiesConfig:
+#             CookieBehavior: none
+#           EnableAcceptEncodingBrotli: false
+#           EnableAcceptEncodingGzip: false
+#           HeadersConfig:
+#             HeaderBehavior: whitelist
+#             Headers:
+#               - x-forwarded-for
+#           QueryStringsConfig:
+#             QueryStringBehavior: whitelist
+#             QueryStrings:
+#               - allowed_query_string_param
+# ##########################################################################
+# #  CloudFront::Distribution                                              #
+# ##########################################################################
+#   CloudfrontDistribution:
+#     Type: AWS::CloudFront::Distribution
+#     Properties:
+#       DistributionConfig:
+#         IPV6Enabled: true
+#         HttpVersion: http2 
+#         Origins:
+#           - Id: MyOrigin
+#             DomainName: !Sub "${ExampleHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+#             CustomOriginConfig:
+#               HTTPSPort: 443
+#               OriginProtocolPolicy: https-only
+#               OriginSSLProtocols: 
+#                 - TLSv1.2
+#         Enabled: true
+#         DefaultCacheBehavior:
+#           Compress: true
+#           TargetOriginId: MyOrigin
+#           ViewerProtocolPolicy: redirect-to-https
+#           CachePolicyId: !Ref 2sCachePolicy
+
+Outputs:
+  ExampleFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt ExampleFunction.Arn
+  DistributionDomainName:
+    Description: "Distribution domain name"
+    Value: !GetAtt CloudfrontDistribution.DomainName
+    Export:
+      Name: DistributionDomainName

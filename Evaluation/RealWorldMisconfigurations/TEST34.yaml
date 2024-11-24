@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  eap-inneed
+
+Globals:
+  Function:
+    Timeout: 3
+    Environment:
+      Variables:
+        TABLE_NAME: inneedEap
+        AWS_REGION_DYNAMODB: us-west-2
+    
+
+Resources:
+  EAPCompanyCRUDFunction:
+    Type: AWS::Serverless::Function
+    FunctionName: "eap-company-crud"
+    Role: "arn:aws:iam::596343339730:role/LambdaS3ReadDynamoDBFull"
+    Properties:
+      CodeUri: eap-company-crud/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Events:
+        CompanyDetails:
+          Type: Api 
+          Properties:
+            Path: /company
+            Method: get
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  EAPApi:
+    Description: "API Gateway endpoint URL for Prod stage for EAP functions"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/company/"

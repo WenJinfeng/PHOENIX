@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for running Lambdas locally
+
+Globals:
+  Function:
+    Timeout: 3
+    Runtime: go1.x
+    MemorySize: 512
+    Architectures:
+      - x86_64
+
+Resources:
+  RegistrationApiFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: ./cmd/registrationApiFunction/
+      Handler: main
+      Events:
+        RegistrationEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: '/api/registration'
+            Method: POST

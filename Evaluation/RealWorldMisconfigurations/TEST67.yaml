@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  StageName:
+    Type: String
+    Default: Prod
+Description: XXX
+
+Globals:
+  Api:
+    EndpointConfiguration: REGIONAL
+  Function:
+    Timeout: 180
+
+
+Resources:
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref StageName
+      Auth:
+        Authorizers:
+          OAuth2Authorizer:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              audience:
+                - https://aws-api-gateway
+              issuer: "https://xxxx.eu.auth0.com/"
+        DefaultAuthorizer: MyOauth2Authorizer
+
+  FinApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: com.StreamLambdaHandler::handleRequest
+      Runtime: java11
+      CodeUri: api
+      MemorySize: 2048
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            TimeoutInMillis: 20000
+            PayloadFormatVersion: '2.0'
+            Auth:
+              Authorizer: MyOauth2Authorizer
+
+Outputs:
+  FApiFunctionApi:
+    Description: URL for application
+    Value: !Sub 'https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/pets'
+    Export:
+      Name: FApiFunctionApi

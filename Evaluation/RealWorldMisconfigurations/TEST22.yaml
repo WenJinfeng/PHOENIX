@@ -1,0 +1,9 @@
+Resources:
+  CheckAuthHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambda-edge/check-auth/
+      Handler: bundle.handler
+      Role: !GetAtt LambdaEdgeExecutionRole.Arn
+      Timeout: 5
+      Version: 2  # Dummy field, change this to force CloudFormation to deploy this resource if none of the other properties change
