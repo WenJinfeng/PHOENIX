@@ -67,7 +67,7 @@ def main():
 
     data = []
     
-    folder_path = 'XX' # EvaluationFile13.yaml, EvaluationFile16.yaml, TEST4, TEST13
+    folder_path = 'XX' # EvaluationFile13.yaml, EvaluationFile16.yaml, TEST4, TEST14
 
   
     for file_name in os.listdir(folder_path):
