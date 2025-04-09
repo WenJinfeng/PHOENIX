@@ -4,6 +4,7 @@ We provide the used dataset, code of our tool PHOENIX, and evaluation data.
 
 !!!We provide new experiments and results in the directory **NewAddExperimentData**.
 The LLM-related implementations: Simple_LLM.py, Three_Few_shot_LLM.py, and LLM Results.xlsx
+The compared pattern mining algorithm (N Painting Growth algorithm) implementation: AWSRuleMiningUsingN-Painting.ipynb
 
 
 ## Used dataset
