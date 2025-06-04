@@ -1,5 +1,7 @@
 # PHOENIX: Misconfiguration Detection for AWS Serverless Computing
 
+This work has been accepted for publication in Transactions on Cloud Computing 2025!
+
 We provide the used dataset, code of our tool PHOENIX, and evaluation data.
 
 !!!We provide new experiments and results in the directory **NewAddExperimentData**.
